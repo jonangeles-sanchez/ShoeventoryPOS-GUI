@@ -53,7 +53,7 @@ def logout():
     shoe_data = None
     inventory_data = None
     user_id = None
-    close_main_window()d
+    close_main_window()
     login_window = tk.Tk()
     login_window.title("Login")
     login_window.geometry("300x150")
