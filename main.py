@@ -3,7 +3,7 @@ import certifi
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from ShoeventoryAPI import get_shoeventory
+from ShoeventoryAPI import get_shoeventory, login_auth
 from POSApi import create_transaction
 
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
@@ -17,9 +17,107 @@ os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 #    {"ShoeID": 2, "Name": "350v2", "Brand": "Adidas", "Size": 10, "Color": "White", "Quantity": 3, "Price": 200},
 #    # Add more shoe data here as needed
 #]
-inventory_data = get_shoeventory(1)  # Replace '1' with the merchant ID
-shoe_data = inventory_data[0]['shoes']  # Access the list of shoes from the API response
+inventory_data = None  # Replace '1' with the merchant ID
+shoe_data = None  # Access the list of shoes from the API response
 cart = []
+user_id = None
+user = None
+password = None
+token = None
+
+
+# Function to validate the login credentials
+def login():
+    global user, password, token, shoe_data, inventory_data, user_id
+    user = username_entry.get()
+    password = password_entry.get()
+    data = login_auth(user, password)
+    token = data['token']
+    user_id = data['merchantId']
+    if token is not None:
+        inventory_data = get_shoeventory(user_id, token)
+        shoe_data = inventory_data[0]['shoes']
+        login_window.destroy()
+        open_main_window()
+    else:
+        messagebox.showinfo("Login Failed", "Invalid username or password.")
+        username_entry.delete(0, tk.END)
+        password_entry.delete(0, tk.END)
+
+
+def logout():
+    global user, password, token, shoe_data, inventory_data, user_id
+    user = None
+    password = None
+    token = None
+    shoe_data = None
+    inventory_data = None
+    user_id = None
+    close_main_window()
+    login_window = tk.Tk()
+    login_window.title("Login")
+    login_window.geometry("300x150")
+
+    login_label = tk.Label(login_window, text="Login", font=("Helvetica", 24, "bold"))
+    login_label.pack(pady=(10, 20))
+
+    username_label = tk.Label(login_window, text="Email:")
+    username_label.pack(anchor="w", padx=10)
+
+    username_entry = ttk.Entry(login_window, font=("Helvetica", 14))
+    username_entry.pack(padx=10)
+
+    password_label = tk.Label(login_window, text="Password:")
+    password_label.pack(anchor="w", padx=10)
+
+    password_entry = ttk.Entry(login_window, font=("Helvetica", 14), show="*")
+    password_entry.pack(padx=10)
+
+    login_button = ttk.Button(login_window, text="Login", command=login)
+    login_button.pack(pady=20)
+    login_window.mainloop()
+
+
+
+# Create the login window
+login_window = tk.Tk()
+login_window.title("Login")
+login_window.geometry("300x150")
+
+login_label = tk.Label(login_window, text="Login", font=("Helvetica", 24, "bold"))
+login_label.pack(pady=(10, 20))
+
+username_label = tk.Label(login_window, text="Email:")
+username_label.pack(anchor="w", padx=10)
+
+username_entry = ttk.Entry(login_window, font=("Helvetica", 14))
+username_entry.pack(padx=10)
+
+password_label = tk.Label(login_window, text="Password:")
+password_label.pack(anchor="w", padx=10)
+
+password_entry = ttk.Entry(login_window, font=("Helvetica", 14), show="*")
+password_entry.pack(padx=10)
+
+login_button = ttk.Button(login_window, text="Login", command=login)
+login_button.pack(pady=20)
+
+
+# Function to open the main inventory window
+def open_main_window():
+    global shoe_data, cart
+    inventory_data = get_shoeventory(user_id, token)  # Replace '1' with the merchant ID
+    shoe_data = inventory_data[0]['shoes']  # Access the list of shoes from the API response
+    cart = []
+
+    # Rest of your code for the main inventory window
+
+# Call the main loop for the login window
+login_window.mainloop()
+
+
+def close_main_window():
+    root.destroy()
 
 
 def update_total_amount():
@@ -77,7 +175,7 @@ def checkout():
     response = messagebox.askyesno("Confirm Checkout", "Are you sure you want to checkout?")
 
     if response:
-        create_transaction(1, cart)
+        create_transaction(user_id, cart)
 
         # Clear the cart and update the total amount display
         clear_cart()
@@ -240,6 +338,9 @@ ShowInventoryButton.pack(side="left", padx=10)
 
 BackToPOSButton = ttk.Button(ModeButtonsFrame, text="Back to POS", command=back_to_pos)
 BackToPOSButton.pack(side="left", padx=10)
+
+LogoutButton = ttk.Button(ModeButtonsFrame, text="Logout", command=logout)
+LogoutButton.pack(side="left", padx=10)
 
 ModeButtonsFrame.pack()  # Pack the mode buttons frame
 
