@@ -84,7 +84,7 @@ def logout():
 # Create the login window
 login_window = tk.Tk()
 login_window.title("Login")
-login_window.geometry("300x150")
+login_window.geometry("400x300")
 
 login_label = tk.Label(login_window, text="Login", font=("Helvetica", 24, "bold"))
 login_label.pack(pady=(10, 20))
