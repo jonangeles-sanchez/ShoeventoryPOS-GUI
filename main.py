@@ -24,6 +24,7 @@ user_id = None
 user = None
 password = None
 token = None
+collection = None
 
 
 # Function to validate the login credentials
@@ -36,7 +37,6 @@ def login():
     user_id = data['merchantId']
     if token is not None:
         inventory_data = get_shoeventory(user_id, token)
-        shoe_data = inventory_data[0]['shoes']
         login_window.destroy()
         open_main_window()
     else:
@@ -105,7 +105,7 @@ login_button.pack(pady=20)
 
 # Function to open the main inventory window
 def open_main_window():
-    global shoe_data, cart
+    global shoe_data, cart, inventory_data
     inventory_data = get_shoeventory(user_id, token)  # Replace '1' with the merchant ID
     shoe_data = inventory_data[0]['shoes']  # Access the list of shoes from the API response
     cart = []
@@ -272,6 +272,13 @@ def clear_inventory():
     InventoryListBox.delete(*InventoryListBox.get_children())
 
 
+# Select and set the collection to view
+def set_collectionInventory(index):
+    global shoe_data
+    shoe_data = inventory_data[index]['shoes']
+    clear_inventory()
+    display_inventory()
+
 
 root = tk.Tk()
 root.title("Shoe Store Inventory")
@@ -323,6 +330,26 @@ TotalPurchaseLabel.pack(pady=(0, 5))
 
 PurchaseTotalTextBlock = ttk.Entry(CheckoutSection, font=("Helvetica", 16, "bold"), width=20)
 PurchaseTotalTextBlock.pack(pady=10)
+
+collection_panel = tk.Frame(main_content, background="white")
+collection_panel.grid(row=1, column=0, padx=(0, 10), pady=(20, 0), sticky="nsew")
+
+# Dropdown to select collection to view
+CollectionSelectPanel = tk.Frame(collection_panel)
+CollectionSelectPanel.pack(pady=(0, 10))
+
+options = []
+for collection in inventory_data:
+    options.append(collection["shoeCollectionName"])
+
+CollectionSelectLabel = ttk.Label(CollectionSelectPanel, text="Select Collection:")
+CollectionSelectLabel.pack(side="left", padx=(0, 10))
+
+CollectionSelect = ttk.Combobox(CollectionSelectPanel, values=options, state="readonly")
+CollectionSelect.pack(side="left")
+
+CollectionSelect.bind("<<ComboboxSelected>>", lambda event: set_collectionInventory(CollectionSelect.current()))
+
 
 ActionButton = ttk.Button(CheckoutSection, text="Checkout", command=checkout)
 ActionButton.pack(pady=10)
