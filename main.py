@@ -5,6 +5,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from ShoeventoryAPI import get_shoeventory, login_auth
 from POSApi import create_transaction
+from excel_data_entry import add_shoe_to_excel, create_excel_file
 
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
@@ -39,6 +40,7 @@ def login():
         inventory_data = get_shoeventory(user_id, token)
         login_window.destroy()
         open_main_window()
+        create_excel_file()
     else:
         messagebox.showinfo("Login Failed", "Invalid username or password.")
         username_entry.delete(0, tk.END)
@@ -176,6 +178,8 @@ def checkout():
 
     if response:
         create_transaction(user_id, cart)
+        for shoe in cart:
+            add_shoe_to_excel(shoe)
 
         # Clear the cart and update the total amount display
         clear_cart()
