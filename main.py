@@ -84,25 +84,36 @@ def logout():
 # Create the login window
 login_window = tk.Tk()
 login_window.title("Login")
-login_window.geometry("400x300")
+login_window.geometry("700x300")
+login_window.resizable(False, False)
+login_window.configure(background="#F7F7F7")
+login_window.attributes("-topmost", True)
+login_window.focus_force()
+login_window.overrideredirect(True)
+login_window.eval(f'tk::PlaceWindow . center')
 
-login_label = tk.Label(login_window, text="Login", font=("Helvetica", 24, "bold"))
+login_label = tk.Label(login_window, text="Shoeventory Point of Sale Login", font=("Helvetica", 24, "bold"))
 login_label.pack(pady=(10, 20))
 
 username_label = tk.Label(login_window, text="Email:")
-username_label.pack(anchor="w", padx=10)
+username_label.pack(anchor="w", padx=233)
 
 username_entry = ttk.Entry(login_window, font=("Helvetica", 14))
 username_entry.pack(padx=10)
+username_entry.focus()
 
 password_label = tk.Label(login_window, text="Password:")
-password_label.pack(anchor="w", padx=10)
+password_label.pack(anchor="w", padx=233)
 
 password_entry = ttk.Entry(login_window, font=("Helvetica", 14), show="*")
 password_entry.pack(padx=10)
 
 login_button = ttk.Button(login_window, text="Login", command=login)
+login_button.bind("<Return>", lambda enter: login())
 login_button.pack(pady=20)
+
+cancel_button = ttk.Button(login_window, text="Cancel", command=login_window.destroy)
+cancel_button.pack(pady=20)
 
 
 # Function to open the main inventory window
