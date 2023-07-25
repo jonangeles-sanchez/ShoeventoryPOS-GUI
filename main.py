@@ -297,10 +297,10 @@ def set_collectionInventory(index):
 
 root = tk.Tk()
 root.title("Shoe Store Inventory")
-root.geometry("800x450")
+root.geometry("2250x800")
 
 style = ttk.Style()
-style.configure("TButton", background="#0078D7", foreground="white", font=("Helvetica", 14), padding=10)
+style.configure("TButton", background="blue", foreground="blue", font=("Helvetica", 14), padding=10)
 
 header = tk.Label(root, text="Shoe Store Inventory", font=("Helvetica", 24, "bold"), foreground="black")
 header.grid(row=0, column=0, pady=(10, 0))
